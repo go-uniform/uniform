@@ -43,7 +43,9 @@ func requestDecode(conn IConn, d diary.IDiary, category, replyChannel string, da
 
 	if err := d.LoadX(temp.PageJson, category, func(p diary.IPage) {
 		temp.page = p
-		scope(&temp, p)
+		if scope != nil {
+			scope(&temp, p)
+		}
 	}); err != nil {
 		panic(err)
 	}
@@ -60,7 +62,9 @@ func responseDecode(conn IConn, d diary.IDiary, category, replyChannel string, d
 
 	if err := d.LoadX(temp.PageJson, category, func(p diary.IPage) {
 		temp.page = p
-		scope(&temp, p)
+		if scope != nil {
+			scope(&temp, p)
+		}
 	}); err != nil {
 		return err
 	}

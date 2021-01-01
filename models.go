@@ -18,6 +18,9 @@ type P map[string]string
 // A package shorthand for map[string][]string
 type Q map[string][]string
 
+// A package shorthand for func(r IRequest, p diary.IPage)
+type S func(r IRequest, p diary.IPage)
+
 // A package level reusable error for chain timeouts
 var (
 	ErrCantReply = errors.New("uniform: no reply channel available")
@@ -31,7 +34,7 @@ type IRequest interface {
 
 	CanReply() bool
 	Reply(Request) error
-	ReplyContinue(Request, func(request IRequest, p diary.IPage)) error
+	ReplyContinue(Request, S) error
 
 	Timeout() time.Duration
 	StartedAt() time.Time
@@ -100,7 +103,7 @@ func (p *payloadRequest) Reply(request Request) error {
 	return p.Conn.ChainPublish(p.page, *p.ReplyChannel, p, request)
 }
 
-func (p *payloadRequest) ReplyContinue(request Request, scope func(request IRequest, p diary.IPage)) error {
+func (p *payloadRequest) ReplyContinue(request Request, scope S) error {
 	remainder := p.Remainder()
 	if remainder <= 0 {
 		panic(ErrTimeout)

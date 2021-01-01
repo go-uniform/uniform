@@ -15,14 +15,14 @@ import (
 
 // A definition of the public functions for a connection instance
 type IConn interface {
-	Request(page diary.IPage, subj string, timeout time.Duration, request Request, scope func(response IRequest, p diary.IPage)) error
+	Request(page diary.IPage, subj string, timeout time.Duration, request Request, scope S) error
 	Publish(page diary.IPage, subj string, request Request) error
 
-	ChainRequest(page diary.IPage, subj string, original IRequest, request Request, scope func(response IRequest, p diary.IPage)) error
+	ChainRequest(page diary.IPage, subj string, original IRequest, request Request, scope S) error
 	ChainPublish(page diary.IPage, subj string, original IRequest, request Request) error
 
-	Subscribe(subj string, scope func(request IRequest, p diary.IPage))
-	QueueSubscribe(subj, queue string, scope func(request IRequest, p diary.IPage))
+	Subscribe(subj string, scope S)
+	QueueSubscribe(subj, queue string, scope S)
 
 	// Populates model with the raw underlying connector which may be required by more advanced users
 	Raw(model interface{})
@@ -43,7 +43,7 @@ func ConnectorNats(d diary.IDiary, c *nats.Conn) (IConn, error) {
 	}, nil
 }
 
-func (c *conn) Request(page diary.IPage, subj string, timeout time.Duration, request Request, scope func(request IRequest, p diary.IPage)) error {
+func (c *conn) Request(page diary.IPage, subj string, timeout time.Duration, request Request, scope S) error {
 	if timeout <= 0 {
 		timeout = time.Minute
 	}
@@ -69,7 +69,7 @@ func (c *conn) Publish(page diary.IPage, subj string, request Request) error {
 	return nil
 }
 
-func (c *conn) ChainRequest(page diary.IPage, subj string, original IRequest, request Request, scope func(response IRequest, p diary.IPage)) error {
+func (c *conn) ChainRequest(page diary.IPage, subj string, original IRequest, request Request, scope S) error {
 	remainder := original.Remainder()
 	if remainder <= 0 {
 		return ErrTimeout
@@ -104,7 +104,7 @@ func (c *conn) Cursor(page diary.IPage, subj string, timeout time.Duration, requ
 	panic("not yet implemented")
 }
 
-func (c *conn) Subscribe(subj string, scope func(request IRequest, p diary.IPage)) {
+func (c *conn) Subscribe(subj string, scope S) {
 	sub, err := c.Conn.Subscribe(subj, func(msg *nats.Msg) {
 		requestDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
 	})
@@ -117,7 +117,7 @@ func (c *conn) Subscribe(subj string, scope func(request IRequest, p diary.IPage
 	}
 }
 
-func (c *conn) QueueSubscribe(subj, queue string, scope func(request IRequest, p diary.IPage)) {
+func (c *conn) QueueSubscribe(subj, queue string, scope S) {
 	sub, err := c.Conn.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
 		requestDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
 	})

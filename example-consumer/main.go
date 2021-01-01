@@ -21,7 +21,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	d.Page(-1, 1000, true, "main", diary.M{}, "", "", nil, func(p diary.IPage) {
+	d.Page(-1, 1000, true, "example-client", diary.M{}, "", "", nil, func(p diary.IPage) {
 
 		if err := conn.Request(p, "console.writeln", time.Minute * 5, uniform.Request{
 			Model: "hello world!",

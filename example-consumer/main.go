@@ -25,11 +25,7 @@ func main() {
 
 		if err := conn.Request(p, "console.writeln", time.Minute * 5, uniform.Request{
 			Model: "hello world!",
-		}, func(response uniform.IRequest, p diary.IPage) {
-			if response.HasAlert() {
-				panic(response.Alert())
-			}
-		}); err != nil {
+		}, nil); err != nil {
 			panic(err)
 		}
 

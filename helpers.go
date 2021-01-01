@@ -38,6 +38,10 @@ func requestDecode(conn IConn, d diary.IDiary, category, replyChannel string, da
 		panic(err)
 	}
 
+	if temp.Request.Error != "" {
+		panic(temp.Request.Error)
+	}
+
 	temp.Conn = conn
 	temp.ReplyChannel = &replyChannel
 

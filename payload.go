@@ -80,18 +80,10 @@ func (p *payload) StartedAt() time.Time {
 	return p.RequestStartedAt
 }
 
-func (p *payload) HasAlert() bool {
-	return p.Request.Alert != ""
+func (p *payload) HasError() bool {
+	return p.Request.Error != ""
 }
 
-func (p *payload) Alert() string {
-	return p.Request.Alert
-}
-
-func (p *payload) HasValidationIssues() bool {
-	panic("not yet implemented")
-}
-
-func (p *payload) ValidationIssues() Q {
-	panic("not yet implemented")
+func (p *payload) Error() string {
+	return p.Request.Error
 }

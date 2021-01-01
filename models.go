@@ -31,6 +31,7 @@ type IRequest interface {
 
 	CanReply() bool
 	Reply(Request) error
+	ReplyContinue(Request, func(request IRequest, p diary.IPage)) error
 
 	Timeout() time.Duration
 	StartedAt() time.Time
@@ -97,6 +98,17 @@ func (p *payloadRequest) Reply(request Request) error {
 		panic(ErrCantReply)
 	}
 	return p.Conn.ChainPublish(p.page, *p.ReplyChannel, p, request)
+}
+
+func (p *payloadRequest) ReplyContinue(request Request, scope func(request IRequest, p diary.IPage)) error {
+	remainder := p.Remainder()
+	if remainder <= 0 {
+		panic(ErrTimeout)
+	}
+	if p.ReplyChannel == nil {
+		panic(ErrCantReply)
+	}
+	return p.Conn.ChainRequest(p.page, *p.ReplyChannel, p, request, scope)
 }
 
 func (p *payloadRequest) Remainder() time.Duration {

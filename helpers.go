@@ -49,15 +49,6 @@ func requestDecode(conn IConn, d diary.IDiary, category, replyChannel string, da
 	}
 }
 
-func responseEncode(page diary.IPage, request Request, timeout time.Duration, startedAt time.Time) ([]byte, error) {
-	return encode(payloadRequest{
-		Request: request,
-		PageJson: page.ToJson(),
-		RequestTimeout: timeout,
-		RequestStartedAt: startedAt,
-	})
-}
-
 func responseDecode(conn IConn, d diary.IDiary, category, replyChannel string, data []byte, scope func(request IRequest, p diary.IPage)) error {
 	var temp payloadRequest
 	if err := decode(data, &temp); err != nil {

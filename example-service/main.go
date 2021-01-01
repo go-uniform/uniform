@@ -32,7 +32,7 @@ func main() {
 	defer conn.Close()
 
 	d.Page(-1, 1000, true, Service, diary.M{}, "", "", nil, func(p diary.IPage) {
-		conn.QueueSubscribe("console.writeln", fmt.Sprintf("%s.%s.%s", Client, Project, Service), func(r uniform.IRequest, p diary.IPage) {
+		conn.QueueSubscribe("console.writeln", Service, func(r uniform.IRequest, p diary.IPage) {
 			var message string
 			r.Read(&message)
 			fmt.Println(message)

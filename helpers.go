@@ -24,7 +24,7 @@ func decode(data []byte, model interface{}) error {
 }
 
 func requestEncode(page diary.IPage, request Request, timeout time.Duration, startedAt time.Time) ([]byte, error) {
-	return encode(payloadRequest{
+	return encode(payload{
 		Request: request,
 		PageJson: page.ToJson(),
 		RequestTimeout: timeout,
@@ -33,7 +33,7 @@ func requestEncode(page diary.IPage, request Request, timeout time.Duration, sta
 }
 
 func requestDecode(conn IConn, d diary.IDiary, category, replyChannel string, data []byte, scope S) {
-	var temp payloadRequest
+	var temp payload
 	if err := decode(data, &temp); err != nil {
 		panic(err)
 	}
@@ -50,7 +50,7 @@ func requestDecode(conn IConn, d diary.IDiary, category, replyChannel string, da
 }
 
 func responseDecode(conn IConn, d diary.IDiary, category, replyChannel string, data []byte, scope S) error {
-	var temp payloadRequest
+	var temp payload
 	if err := decode(data, &temp); err != nil {
 		return err
 	}

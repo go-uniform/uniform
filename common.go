@@ -15,9 +15,13 @@ type EmailAttachment struct {
 	Data        string `json:"data"`
 }
 
-func (c *conn) GeneratePdf(p diary.IPage, timeout time.Duration, html []byte) []byte {
+func (c *conn) GeneratePdf(p diary.IPage, timeout time.Duration, serviceId string, html []byte) []byte {
 	var data []byte
-	if err := c.Request(p, "pdf.convert", timeout, Request{
+	subj := "pdf.convert" // broadcast to any available service
+	if serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", serviceId, subj) // ask a specific service
+	}
+	if err := c.Request(p, subj, timeout, Request{
 		Model: html,
 	}, func(r IRequest, p diary.IPage) {
 		r.Read(&data)
@@ -27,11 +31,16 @@ func (c *conn) GeneratePdf(p diary.IPage, timeout time.Duration, html []byte) []
 	return data
 }
 
-func (c *conn) SendEmail(p diary.IPage, timeout time.Duration, from, fromName, subject, body string, to ...string) {
-	c.SendEmailX(p, timeout, from, fromName, subject, body, nil, to...)
+func (c *conn) SendEmail(p diary.IPage, timeout time.Duration, serviceId string, from, fromName, subject, body string, to ...string) {
+	c.SendEmailX(p, timeout, serviceId, from, fromName, subject, body, nil, to...)
 }
 
-func (c *conn) SendEmailX(p diary.IPage, timeout time.Duration, from, fromName, subject, body string, attachments []EmailAttachment, to ...string) {
+func (c *conn) SendEmailX(p diary.IPage, timeout time.Duration, serviceId string, from, fromName, subject, body string, attachments []EmailAttachment, to ...string) {
+	subj := "email.send" // broadcast to any available service
+	if serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", serviceId, subj) // ask a specific service
+	}
+
 	request := M{
 		"from":      from,
 		"from-name": fromName,
@@ -44,31 +53,36 @@ func (c *conn) SendEmailX(p diary.IPage, timeout time.Duration, from, fromName, 
 		request["attachments"] = attachments
 	}
 
-	if err := c.Request(p, "email.send", timeout, Request{
+	if err := c.Request(p, subj, timeout, Request{
 		Model: request,
 	}, nil); err != nil {
 		panic(err)
 	}
 }
 
-func (c *conn) SendSms(p diary.IPage, timeout time.Duration, body string, to ...string) {
+func (c *conn) SendSms(p diary.IPage, timeout time.Duration, serviceId string, body string, to ...string) {
+	subj := "sms.send" // broadcast to any available service
+	if serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", serviceId, subj) // ask a specific service
+	}
+
 	request := M{
 		"to":        to,
 		"body":      body,
 	}
 
-	if err := c.Request(p, "sms.send", timeout, Request{
+	if err := c.Request(p, subj, timeout, Request{
 		Model: request,
 	}, nil); err != nil {
 		panic(err)
 	}
 }
 
-func (c *conn) SendEmailTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, from, fromName, path string, vars M, to ...string) {
-	c.SendEmailTemplateX(p, timeout, asset, from, fromName, path, vars, nil, to...)
+func (c *conn) SendEmailTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, serviceId string, from, fromName, path string, vars M, to ...string) {
+	c.SendEmailTemplateX(p, timeout, asset, serviceId, from, fromName, path, vars, nil, to...)
 }
 
-func (c *conn) SendEmailTemplateX(p diary.IPage, timeout time.Duration, asset func(string) []byte, from, fromName, path string, vars M, attachments []EmailAttachment, to ...string) {
+func (c *conn) SendEmailTemplateX(p diary.IPage, timeout time.Duration, asset func(string) []byte, serviceId string, from, fromName, path string, vars M, attachments []EmailAttachment, to ...string) {
 	path = strings.TrimPrefix(path, "/")
 	if !strings.HasPrefix(path, "emails/") {
 		path = fmt.Sprintf("emails/%s", path)
@@ -91,10 +105,10 @@ func (c *conn) SendEmailTemplateX(p diary.IPage, timeout time.Duration, asset fu
 	}
 	subject := memorySecondary.String()
 
-	c.SendEmailX(p, timeout, from, fromName, subject, body, attachments, to...)
+	c.SendEmailX(p, timeout, serviceId, from, fromName, subject, body, attachments, to...)
 }
 
-func (c *conn) SendSmsTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, path string, vars M, to ...string) {
+func (c *conn) SendSmsTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, serviceId string, path string, vars M, to ...string) {
 	path = strings.TrimPrefix(path, "/")
 	if !strings.HasPrefix(path, "sms/") {
 		path = fmt.Sprintf("sms/%s", path)
@@ -110,15 +124,20 @@ func (c *conn) SendSmsTemplate(p diary.IPage, timeout time.Duration, asset func(
 	}
 	body := memory.String()
 
-	c.SendSms(p, timeout, body, to...)
+	c.SendSms(p, timeout, serviceId, body, to...)
 }
 
-func (c *conn) Mongo(p diary.IPage, timeout time.Duration) IMongo {
+func (c *conn) Mongo(p diary.IPage, serviceId string) IMongo {
+	category := "mongo"
+	if serviceId != "" {
+		category = fmt.Sprintf("%s.mongo", serviceId)
+	}
 	var res IMongo
-	if err := p.Scope("mongo", func(p diary.IPage) {
+	if err := p.Scope(category, func(p diary.IPage) {
 		res = &connMongo{
 			c: c,
 			p: p,
+			serviceId: serviceId,
 		}
 	}); err != nil {
 		panic(err)

@@ -22,14 +22,14 @@ type IConn interface {
 	Subscribe(subj string, scope S) (ISubscription, error)
 	QueueSubscribe(subj, queue string, scope S) (ISubscription, error)
 
-	GeneratePdf(p diary.IPage, timeout time.Duration, html []byte) []byte
-	SendEmail(p diary.IPage, timeout time.Duration, from, fromName, subject, body string, to ...string)
-	SendEmailX(p diary.IPage, timeout time.Duration, from, fromName, subject, body string, attachments []EmailAttachment, to ...string)
-	SendSms(p diary.IPage, timeout time.Duration, body string, to ...string)
-	SendEmailTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, from, fromName, path string, vars M, to ...string)
-	SendEmailTemplateX(p diary.IPage, timeout time.Duration, asset func(string) []byte, from, fromName, path string, vars M, attachments []EmailAttachment, to ...string)
-	SendSmsTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, path string, vars M, to ...string)
-	Mongo(p diary.IPage, timeout time.Duration) IMongo
+	GeneratePdf(p diary.IPage, timeout time.Duration, serviceId string, html []byte) []byte
+	SendEmail(p diary.IPage, timeout time.Duration, serviceId, from, fromName, subject, body string, to ...string)
+	SendEmailX(p diary.IPage, timeout time.Duration, serviceId, from, fromName, subject, body string, attachments []EmailAttachment, to ...string)
+	SendSms(p diary.IPage, timeout time.Duration, serviceId, body string, to ...string)
+	SendEmailTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, serviceId, from, fromName, path string, vars M, to ...string)
+	SendEmailTemplateX(p diary.IPage, timeout time.Duration, asset func(string) []byte, serviceId, from, fromName, path string, vars M, attachments []EmailAttachment, to ...string)
+	SendSmsTemplate(p diary.IPage, timeout time.Duration, asset func(string) []byte, serviceId, path string, vars M, to ...string)
+	Mongo(p diary.IPage, serviceId string) IMongo
 
 	// Populates model with the raw underlying connector which may be required by more advanced users
 	Raw(model interface{})

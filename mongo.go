@@ -10,6 +10,7 @@ import (
 type connMongo struct {
 	c IConn
 	p diary.IPage
+	serviceId string
 }
 
 func (m *connMongo) CatchNoDocumentsErr(handler func(p diary.IPage)) {
@@ -31,6 +32,10 @@ func (m *connMongo) CatchNoDocumentsErr(handler func(p diary.IPage)) {
 }
 
 func (m *connMongo) Aggregate(timeout time.Duration, database, collection string, stages []M, model interface{}) {
+	subj := "mongo.aggregate"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
 	if err := m.c.Request(m.p, "mongo.aggregate", timeout, Request{
 		Model: M{
 			"database":   database,

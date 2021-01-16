@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+func init() {
+	gob.Register(map[string]interface{}{})
+	gob.Register(M{})
+}
+
 func encode(model interface{}) ([]byte, error) {
 	b := bytes.NewBuffer(nil)
 	if err := gob.NewEncoder(b).Encode(model); err != nil {

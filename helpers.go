@@ -10,6 +10,7 @@ import (
 func init() {
 	gob.Register(map[string]interface{}{})
 	gob.Register(M{})
+	gob.Register(map[string][]string{})
 }
 
 func encode(model interface{}) ([]byte, error) {

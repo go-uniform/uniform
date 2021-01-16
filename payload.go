@@ -9,7 +9,7 @@ import (
 )
 
 type payload struct {
-	Conn             IConn
+	conn             IConn
 	ReplyChannel     *string
 	Request          Request
 	PageJson         []byte
@@ -54,7 +54,7 @@ func (p *payload) Reply(request Request) error {
 	if p.ReplyChannel == nil {
 		panic(ErrCantReply)
 	}
-	return p.Conn.ChainPublish(p.page, *p.ReplyChannel, p, request)
+	return p.conn.ChainPublish(p.page, *p.ReplyChannel, p, request)
 }
 
 func (p *payload) ReplyContinue(request Request, scope S) error {
@@ -65,7 +65,7 @@ func (p *payload) ReplyContinue(request Request, scope S) error {
 	if p.ReplyChannel == nil {
 		panic(ErrCantReply)
 	}
-	return p.Conn.ChainRequest(p.page, *p.ReplyChannel, p, request, scope)
+	return p.conn.ChainRequest(p.page, *p.ReplyChannel, p, request, scope)
 }
 
 func (p *payload) Remainder() time.Duration {

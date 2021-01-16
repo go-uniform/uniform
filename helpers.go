@@ -1,32 +1,17 @@
 package uniform
 
 import (
-	"bytes"
-	"encoding/gob"
 	"github.com/go-diary/diary"
+	"go.mongodb.org/mongo-driver/bson"
 	"time"
 )
 
-func init() {
-	gob.Register(map[string]interface{}{})
-	gob.Register(M{})
-	gob.Register(map[string][]string{})
-}
-
 func encode(model interface{}) ([]byte, error) {
-	b := bytes.NewBuffer(nil)
-	if err := gob.NewEncoder(b).Encode(model); err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
+	return bson.Marshal(model)
 }
 
 func decode(data []byte, model interface{}) error {
-	b := bytes.NewBuffer(data)
-	if err := gob.NewDecoder(b).Decode(model); err != nil {
-		return err
-	}
-	return nil
+	return bson.Unmarshal(data, model)
 }
 
 func requestEncode(page diary.IPage, request Request, timeout time.Duration, startedAt time.Time) ([]byte, error) {
@@ -48,7 +33,7 @@ func requestDecode(conn IConn, d diary.IDiary, category, replyChannel string, da
 		panic(temp.Request.Error)
 	}
 
-	temp.Conn = conn
+	temp.conn = conn
 	temp.ReplyChannel = &replyChannel
 
 	if err := d.LoadX(temp.PageJson, category, func(p diary.IPage) {
@@ -67,7 +52,7 @@ func responseDecode(conn IConn, d diary.IDiary, category, replyChannel string, d
 		return err
 	}
 
-	temp.Conn = conn
+	temp.conn = conn
 	temp.ReplyChannel = &replyChannel
 
 	if err := d.LoadX(temp.PageJson, category, func(p diary.IPage) {

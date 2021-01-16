@@ -75,6 +75,7 @@ type IMongo interface{
 	FindOne(timeout time.Duration, database, collection string, sort string, skip int64, query M, model interface{}, fieldTags map[string][]string)
 	FindOneX(timeout time.Duration, database, collection string, sort string, skip int64, query M, model interface{}, fieldTags map[string][]string, includeDeleted bool)
 	Delete(timeout time.Duration, database, collection, id string, soft bool, model interface{}, fieldTags map[string][]string)
+	DeleteMany(timeout time.Duration, database, collection string, query M, soft bool) (deleted int64)
 	Inc(timeout time.Duration, database, collection, id, field string, amount float64, model interface{}, fieldTags map[string][]string)
 	Index(timeout time.Duration, database, collection, name string)
 	Insert(timeout time.Duration, database, collection string, document interface{}, model interface{}, fieldTags map[string][]string)

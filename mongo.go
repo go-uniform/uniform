@@ -8,8 +8,8 @@ import (
 )
 
 type connMongo struct {
-	c IConn
-	p diary.IPage
+	c         IConn
+	p         diary.IPage
 	serviceId string
 }
 
@@ -36,7 +36,7 @@ func (m *connMongo) Aggregate(timeout time.Duration, database, collection string
 	if m.serviceId != "" {
 		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
 	}
-	if err := m.c.Request(m.p, "mongo.aggregate", timeout, Request{
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Model: M{
 			"database":   database,
 			"collection": collection,
@@ -50,8 +50,13 @@ func (m *connMongo) Aggregate(timeout time.Duration, database, collection string
 }
 
 func (m *connMongo) Count(timeout time.Duration, database, collection string, query M) int64 {
+	subj := "mongo.count"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
 	var response int64
-	if err := m.c.Request(m.p, "mongo.count", timeout, Request{
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Model: M{
 			"database":   database,
 			"collection": collection,
@@ -66,10 +71,15 @@ func (m *connMongo) Count(timeout time.Duration, database, collection string, qu
 }
 
 func (m *connMongo) GroupCount(timeout time.Duration, database, collection, groupField string, query M) int64 {
+	subj := "mongo.aggregate"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
 	var response []struct {
 		Out int64 `json:"out"`
 	}
-	if err := m.c.Request(m.p, "mongo.aggregate", timeout, Request{
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Model: M{
 			"database":   database,
 			"collection": collection,
@@ -107,11 +117,16 @@ func (m *connMongo) GroupCount(timeout time.Duration, database, collection, grou
 }
 
 func (m *connMongo) Avg(timeout time.Duration, database, collection, field string, query M) float64 {
+	subj := "mongo.aggregate"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
 	var response []struct {
 		Out float64 `json:"out"`
 	}
 
-	if err := m.c.Request(m.p, "mongo.aggregate", timeout, Request{
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Model: M{
 			"database":   database,
 			"collection": collection,
@@ -269,7 +284,12 @@ func (m *connMongo) AverageMonthly(timeout time.Duration, database, collection, 
 }
 
 func (m *connMongo) FindMany(timeout time.Duration, database, collection, sort string, skip, limit int64, query M, model interface{}, fieldTags map[string][]string) {
-	if err := m.c.Request(m.p, "mongo.find.many", timeout, Request{
+	subj := "mongo.find.many"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -293,7 +313,12 @@ func (m *connMongo) FindOne(timeout time.Duration, database, collection string, 
 }
 
 func (m *connMongo) FindOneX(timeout time.Duration, database, collection string, sort string, skip int64, query M, model interface{}, fieldTags map[string][]string, includeDeleted bool) {
-	if err := m.c.Request(m.p, "mongo.find.one", timeout, Request{
+	subj := "mongo.find.one"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -312,8 +337,13 @@ func (m *connMongo) FindOneX(timeout time.Duration, database, collection string,
 	}
 }
 
-func (m*connMongo) Delete(timeout time.Duration, database, collection, id string, soft bool, model interface{}, fieldTags map[string][]string) {
-	if err := m.c.Request(m.p, "mongo.delete", timeout, Request{
+func (m *connMongo) Delete(timeout time.Duration, database, collection, id string, soft bool, model interface{}, fieldTags map[string][]string) {
+	subj := "mongo.delete"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -330,8 +360,39 @@ func (m*connMongo) Delete(timeout time.Duration, database, collection, id string
 	}
 }
 
+func (m *connMongo) DeleteMany(timeout time.Duration, database, collection string, query M, soft bool) (deleted int64) {
+	subj := "mongo.delete.many"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	var response struct {
+		DeletedCount int64 `json:"n"` // The number of documents deleted.
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
+		Model: M{
+			"database":   database,
+			"collection": collection,
+			"query":      query,
+			"soft":       soft,
+		},
+	}, func(r IRequest, p diary.IPage) {
+		r.Read(&response)
+	}); err != nil {
+		panic(err)
+	}
+
+	return response.DeletedCount
+}
+
 func (m *connMongo) Inc(timeout time.Duration, database, collection, id, field string, amount float64, model interface{}, fieldTags map[string][]string) {
-	if err := m.c.Request(m.p, "mongo.inc", timeout, Request{
+	subj := "mongo.inc"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -350,7 +411,12 @@ func (m *connMongo) Inc(timeout time.Duration, database, collection, id, field s
 }
 
 func (m *connMongo) Index(timeout time.Duration, database, collection, name string) {
-	if err := m.c.Request(m.p, "mongo.index", timeout, Request{
+	subj := "mongo.index"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Model: M{
 			"database":   database,
 			"collection": collection,
@@ -362,7 +428,12 @@ func (m *connMongo) Index(timeout time.Duration, database, collection, name stri
 }
 
 func (m *connMongo) Insert(timeout time.Duration, database, collection string, document interface{}, model interface{}, fieldTags map[string][]string) {
-	if err := m.c.Request(m.p, "mongo.insert", timeout, Request{
+	subj := "mongo.insert"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -379,7 +450,12 @@ func (m *connMongo) Insert(timeout time.Duration, database, collection string, d
 }
 
 func (m *connMongo) Read(timeout time.Duration, database, collection, id string, model interface{}, fieldTags map[string][]string) {
-	if err := m.c.Request(m.p, "mongo.read", timeout, Request{
+	subj := "mongo.read"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -396,7 +472,12 @@ func (m *connMongo) Read(timeout time.Duration, database, collection, id string,
 }
 
 func (m *connMongo) Restore(timeout time.Duration, database, collection, id string, model interface{}, fieldTags map[string][]string) {
-	if err := m.c.Request(m.p, "mongo.restore", timeout, Request{
+	subj := "mongo.restore"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -417,7 +498,12 @@ func (m *connMongo) Update(timeout time.Duration, database, collection, id strin
 }
 
 func (m *connMongo) UpdateX(timeout time.Duration, database, collection, id string, document interface{}, model interface{}, fieldTags map[string][]string, includeDeleted bool) {
-	if err := m.c.Request(m.p, "mongo.update", timeout, Request{
+	subj := "mongo.update"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Context: M{
 			"field-tags": fieldTags,
 		},
@@ -436,6 +522,11 @@ func (m *connMongo) UpdateX(timeout time.Duration, database, collection, id stri
 }
 
 func (m *connMongo) UpdateMany(timeout time.Duration, database, collection string, query M, partial interface{}) (matched, modified, upserted int64, upsertedId interface{}) {
+	subj := "mongo.update.many"
+	if m.serviceId != "" {
+		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
 	var response struct {
 		MatchedCount  int64       `json:"matched"`     // The number of documents matched by the filter.
 		ModifiedCount int64       `json:"modified"`    // The number of documents modified by the operation.
@@ -443,7 +534,7 @@ func (m *connMongo) UpdateMany(timeout time.Duration, database, collection strin
 		UpsertedID    interface{} `json:"upserted-id"` // The _id field of the upserted document, or nil if no upsert was done.
 	}
 
-	if err := m.c.Request(m.p, "mongo.update.many", timeout, Request{
+	if err := m.c.Request(m.p, subj, timeout, Request{
 		Model: M{
 			"database":   database,
 			"collection": collection,

@@ -40,6 +40,8 @@ type IConn interface {
 
 // A definition of the public functions for a request interface
 type IRequest interface {
+	Conn() IConn
+
 	Read(interface{})
 	Parameters() P
 	Context() M

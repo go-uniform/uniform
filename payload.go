@@ -18,6 +18,10 @@ type payload struct {
 	RequestStartedAt time.Time
 }
 
+func (p *payload) Conn() IConn {
+	return p.conn
+}
+
 func (p *payload) Read(v interface{}) {
 	t := bytes.NewBuffer([]byte{})
 	if err := gob.NewEncoder(t).EncodeValue(reflect.ValueOf(p.Request.Model)); err != nil {

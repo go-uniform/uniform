@@ -22,12 +22,8 @@ func (p *payload) Conn() IConn {
 	return p.conn
 }
 
-func (p *payload) Data() []byte {
-	t := bytes.NewBuffer([]byte{})
-	if err := gob.NewEncoder(t).EncodeValue(reflect.ValueOf(p.Request.Model)); err != nil {
-		panic(err)
-	}
-	return t.Bytes()
+func (p *payload) Raw() Request {
+	return p.Request
 }
 
 func (p *payload) Read(v interface{}) {

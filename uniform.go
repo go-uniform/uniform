@@ -49,7 +49,7 @@ type IRequest interface {
 	CanReply() bool
 	Reply(Request) error
 	ReplyContinue(Request, S) error
-	Data() []byte
+	Raw() Request
 	Channel() string
 
 	Timeout() time.Duration

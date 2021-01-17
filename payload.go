@@ -24,12 +24,14 @@ func (p *payload) Raw() Request {
 }
 
 func (p *payload) Read(v interface{}) {
-	data, err := encode(p.Request.Model)
-	if err != nil {
-		panic(err)
-	}
-	if err := decode(data, v); err != nil {
-		panic(err)
+	if v != nil {
+		data, err := encode(p.Request.Model)
+		if err != nil {
+			panic(err)
+		}
+		if err := decode(data, v); err != nil {
+			panic(err)
+		}
 	}
 }
 

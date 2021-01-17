@@ -1,10 +1,7 @@
 package uniform
 
 import (
-	"bytes"
-	"encoding/gob"
 	"github.com/go-diary/diary"
-	"reflect"
 	"time"
 )
 
@@ -27,11 +24,11 @@ func (p *payload) Raw() Request {
 }
 
 func (p *payload) Read(v interface{}) {
-	t := bytes.NewBuffer([]byte{})
-	if err := gob.NewEncoder(t).EncodeValue(reflect.ValueOf(p.Request.Model)); err != nil {
+	data, err := encode(p.Request.Model)
+	if err != nil {
 		panic(err)
 	}
-	if err := gob.NewDecoder(t).DecodeValue(reflect.ValueOf(v)); err != nil {
+	if err := decode(data, v); err != nil {
 		panic(err)
 	}
 }

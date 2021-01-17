@@ -22,6 +22,14 @@ func (p *payload) Conn() IConn {
 	return p.conn
 }
 
+func (p *payload) Data() []byte {
+	t := bytes.NewBuffer([]byte{})
+	if err := gob.NewEncoder(t).EncodeValue(reflect.ValueOf(p.Request.Model)); err != nil {
+		panic(err)
+	}
+	return t.Bytes()
+}
+
 func (p *payload) Read(v interface{}) {
 	t := bytes.NewBuffer([]byte{})
 	if err := gob.NewEncoder(t).EncodeValue(reflect.ValueOf(p.Request.Model)); err != nil {
@@ -59,6 +67,13 @@ func (p *payload) Reply(request Request) error {
 		panic(ErrCantReply)
 	}
 	return p.conn.ChainPublish(p.page, *p.ReplyChannel, p, request)
+}
+
+func (p *payload) Channel() string {
+	if p.ReplyChannel != nil {
+		return ""
+	}
+	return *p.ReplyChannel
 }
 
 func (p *payload) ReplyContinue(request Request, scope S) error {

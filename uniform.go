@@ -49,6 +49,8 @@ type IRequest interface {
 	CanReply() bool
 	Reply(Request) error
 	ReplyContinue(Request, S) error
+	Data() []byte
+	Channel() string
 
 	Timeout() time.Duration
 	StartedAt() time.Time

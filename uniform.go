@@ -19,8 +19,8 @@ type IConn interface {
 	ChainRequest(page diary.IPage, subj string, original IRequest, request Request, scope S) error
 	ChainPublish(page diary.IPage, subj string, original IRequest, request Request) error
 
-	Subscribe(subj string, scope S) (ISubscription, error)
-	QueueSubscribe(subj, queue string, scope S) (ISubscription, error)
+	Subscribe(rate time.Duration, subj string, scope S) (ISubscription, error)
+	QueueSubscribe(rate time.Duration, subj, queue string, scope S) (ISubscription, error)
 
 	GeneratePdf(p diary.IPage, timeout time.Duration, serviceId string, html []byte) []byte
 	SendEmail(p diary.IPage, timeout time.Duration, serviceId, from, fromName, subject, body string, to ...string)

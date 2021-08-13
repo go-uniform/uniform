@@ -6,17 +6,20 @@ import (
 	"time"
 )
 
-func subscriptionNats(s *nats.Subscription) (ISubscription, error) {
+func subscriptionNats(ticker *time.Ticker, s *nats.Subscription) (ISubscription, error) {
 	return &subscription{
 		Subscription: s,
+		Ticker: ticker,
 	}, nil
 }
 
 type subscription struct {
 	Subscription *nats.Subscription
+	Ticker *time.Ticker
 }
 
 func (s *subscription) Unsubscribe() error {
+	defer s.Ticker.Stop()
 	return s.Subscription.Unsubscribe()
 }
 
@@ -93,18 +96,24 @@ func (c *conn) Cursor(page diary.IPage, subj string, timeout time.Duration, requ
 	panic("not yet implemented")
 }
 
-func (c *conn) Subscribe(subj string, scope S) (ISubscription, error) {
+func (c *conn) Subscribe(rateLimit time.Duration, subj string, scope S) (ISubscription, error) {
+	ticker := time.NewTicker(rateLimit)
 	sub, err := c.Conn.Subscribe(subj, func(msg *nats.Msg) {
-		requestDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
+		<-ticker.C
+		go func() {
+			requestDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
+		}()
 	})
 	if err != nil {
 		return nil, err
 	}
-	return subscriptionNats(sub)
+	return subscriptionNats(ticker, sub)
 }
 
-func (c *conn) QueueSubscribe(subj, queue string, scope S) (ISubscription, error) {
+func (c *conn) QueueSubscribe(rateLimit time.Duration, subj, queue string, scope S) (ISubscription, error) {
+	ticker := time.NewTicker(rateLimit)
 	sub, err := c.Conn.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
+		<-ticker.C
 		go func() {
 			requestDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
 		}()
@@ -112,7 +121,7 @@ func (c *conn) QueueSubscribe(subj, queue string, scope S) (ISubscription, error
 	if err != nil {
 		panic(err)
 	}
-	return subscriptionNats(sub)
+	return subscriptionNats(ticker, sub)
 }
 
 func (c *conn) Raw(model interface{}) {

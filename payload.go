@@ -50,7 +50,7 @@ func (p *payload) Context() M {
 }
 
 func (p *payload) CanReply() bool {
-	return p.ReplyChannel != nil
+	return p.ReplyChannel != nil && *p.ReplyChannel != ""
 }
 
 func (p *payload) Reply(request Request) error {

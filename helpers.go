@@ -1,6 +1,7 @@
 package uniform
 
 import (
+	"fmt"
 	"github.com/go-diary/diary"
 	"go.mongodb.org/mongo-driver/bson"
 	"time"
@@ -155,6 +156,35 @@ func requestDecode(conn IConn, d diary.IDiary, category, replyChannel string, da
 	temp.ReplyChannel = &replyChannel
 
 	if err := d.LoadX(temp.PageJson, category, func(p diary.IPage) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				var err error
+				message := ""
+				if value, ok := rec.(error); ok {
+					message = value.Error()
+					err = value
+				} else if value, ok := rec.(string); ok {
+					message = value
+				} else {
+					message = fmt.Sprint(rec)
+				}
+				p.Error("catch", message, diary.M{
+					"rec": rec,
+					"err": err,
+				})
+
+				if temp.CanReply() {
+					if err := temp.Reply(Request{
+						Error: message,
+					}); err != nil {
+						p.Error("reply", err.Error(), diary.M{
+							"err": err,
+						})
+					}
+				}
+			}
+		}()
+
 		temp.page = p
 		if scope != nil {
 			scope(&temp, p)

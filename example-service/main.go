@@ -34,6 +34,7 @@ func main() {
 
 	d.Page(-1, 1000, true, Service, diary.M{}, "", "", nil, func(p diary.IPage) {
 		conn.QueueSubscribe(time.Nanosecond, "console.writeln", Service, func(r uniform.IRequest, p diary.IPage) {
+			panic("testing")
 			var message string
 			r.Read(&message)
 			fmt.Println(message)

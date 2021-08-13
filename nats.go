@@ -105,7 +105,9 @@ func (c *conn) Subscribe(subj string, scope S) (ISubscription, error) {
 
 func (c *conn) QueueSubscribe(subj, queue string, scope S) (ISubscription, error) {
 	sub, err := c.Conn.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
-		requestDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
+		go func() {
+			requestDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
+		}()
 	})
 	if err != nil {
 		panic(err)

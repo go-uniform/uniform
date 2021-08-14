@@ -91,12 +91,36 @@ type IMongo interface{
 	UpdateMany(timeout time.Duration, database, collection string, query M, partial interface{}) (matched, modified, upserted int64, upsertedId interface{})
 }
 
-// The structure for the standard mongo events
-type MongoEvent struct {
+// The structure for the standard mongo inserted event
+type MongoEventInserted struct {
+	Database string
+	Collection string
+	Id primitive.ObjectID
+	Record M
+}
+
+// The structure for the standard mongo updated event
+type MongoEventUpdated struct {
 	Database string
 	Collection string
 	Id primitive.ObjectID
 	Before M
 	Record M
-	Event string // inserted, updated, deleted, soft-deleted, restored
+}
+
+// The structure for the standard mongo deleted event
+type MongoEventDeleted struct {
+	Database string
+	Collection string
+	Id primitive.ObjectID
+	Record M
+	Soft bool
+}
+
+// The structure for the standard mongo restored event
+type MongoEventRestored struct {
+	Database string
+	Collection string
+	Id primitive.ObjectID
+	Record M
 }

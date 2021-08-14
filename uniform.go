@@ -98,5 +98,5 @@ type MongoEvent struct {
 	Id primitive.ObjectID
 	Before M
 	Record M
-	Event string
+	Event string // inserted, updated, deleted, soft-deleted, restored
 }

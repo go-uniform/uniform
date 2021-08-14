@@ -7,6 +7,7 @@
 package uniform
 
 import (
+	"fmt"
 	"github.com/go-diary/diary"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
@@ -222,4 +223,9 @@ type MongoEventRestored struct {
 	Collection string
 	Id         primitive.ObjectID
 	Record     M
+}
+
+// Trigger a panic in a specific format that will tell the api layer to respond with a specific error code
+func Alert(code int, message string) {
+	panic(fmt.Sprintf("alert:%d:%s", code, message))
 }

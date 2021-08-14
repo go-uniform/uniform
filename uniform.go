@@ -8,7 +8,8 @@ package uniform
 
 import (
 "github.com/go-diary/diary"
-"time"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 // A definition of the public functions for a connection interface
@@ -88,4 +89,14 @@ type IMongo interface{
 	Update(timeout time.Duration, database, collection, id string, document interface{}, model interface{}, fieldTags map[string][]string)
 	UpdateX(timeout time.Duration, database, collection, id string, document interface{}, model interface{}, fieldTags map[string][]string, includeDeleted bool)
 	UpdateMany(timeout time.Duration, database, collection string, query M, partial interface{}) (matched, modified, upserted int64, upsertedId interface{})
+}
+
+// The structure for the standard mongo events
+type MongoEvent struct {
+	Database string
+	Collection string
+	Id primitive.ObjectID
+	Before M
+	Record M
+	Event string
 }

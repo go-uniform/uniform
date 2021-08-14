@@ -7,10 +7,109 @@
 package uniform
 
 import (
-"github.com/go-diary/diary"
+	"github.com/go-diary/diary"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
+
+// The structure for the standard auth check event
+type AuthCheckRequest struct {
+	// the type of account being checked
+	Type string
+	// the identifier for the given account
+	Identifier string
+	// is a password reset begin attempted
+	Reset bool
+}
+
+// The structure for the standard response to an auth check event
+type AuthCheckResponse struct {
+	// the id of the account record found that matches given identifier
+	Id string
+	// the encrypted password for the given account record
+	Password *string
+	// a time flag indicating if the account is blocked [explicitly blocked from using system]
+	BlockedAt *time.Time
+	// a time flag indicating if the account is locked [failed password attempts]
+	LockedAt *time.Time
+}
+
+// The structure for the standard auth otp event
+type AuthOtpRequest struct {
+	// the type of account being checked
+	Type string
+	// the identifier for the given account
+	Identifier string
+	// the method to send otp; "code": sends a 6 digit code, "token": sends hyperlink
+	Method string
+	// the channel to send the message over "mobile", "email", etc.
+	Channel string
+	// the code to be sent
+	Code *string
+	// the token to be embedded into the hyperlink
+	Token *string
+
+	// the id of the account record found that matches given identifier
+	Id string
+	// secure meta data storage for either login, password reset or account creation processes data
+	Meta M
+}
+
+// The structure for the standard response to an auth otp event
+type AuthOtpResponse struct {
+}
+
+// The structure for the standard auth failed event
+type AuthFailedRequest struct {
+	// the type of account being checked
+	Type string
+	// the id of the account record found that matches given identifier
+	Id string
+}
+
+// The structure for the standard response to an auth failed event
+type AuthFailedResponse struct {
+	// the id of the account record found that matches given identifier
+	Id string
+	// the encrypted password for the given account record
+	Password *string
+	// the amount of times the account has had failed login attempts in a row
+	Counter int64
+	// a time flag indicating if the account is blocked [explicitly blocked from using system]
+	BlockedAt *time.Time
+	// a time flag indicating if the account is locked [failed password attempts]
+	LockedAt *time.Time
+}
+
+// The structure for the standard auth jwt event
+type AuthJwtRequest struct {
+	// the type of account being checked
+	Type string
+	// the id of the account record found that matches given identifier
+	Id string
+}
+
+// The structure for the standard response to an auth jwt event
+type AuthJwtResponse struct {
+	// a flag indicating if the user is required to do a two-factor otp auth before being issued the jwt
+	TwoFactor  bool
+	// the issuer name
+	Issuer     string
+	// the issue domain for host verification
+	Audience   string
+	// when the jwt will expire
+	ExpiresAt  time.Time
+	// when the jwt will be activate (nil means immediately active)
+	ActivateAt *time.Time
+	// a flag indicating if the account permission tags should be seen as allow or as deny permission tags
+	Inverted   bool
+	// the permission tags to either allow/deny permissions depending on inverted flag value
+	Tags       []string
+	// records that are linked to this account which should be granted "my/mine" access to
+	Links      map[string][]string
+	// additional data that may be required to handle a project's specific needs
+	Meta       map[string]interface{}
+}
 
 // A definition of the public functions for a connection interface
 type IConn interface {
@@ -67,7 +166,7 @@ type ISubscription interface {
 }
 
 // A definition of the public functions for a mongo interface
-type IMongo interface{
+type IMongo interface {
 	CatchNoDocumentsErr(handler func(p diary.IPage))
 	Aggregate(timeout time.Duration, database, collection string, stages []M, model interface{})
 	Count(timeout time.Duration, database, collection string, query M) int64
@@ -93,34 +192,34 @@ type IMongo interface{
 
 // The structure for the standard mongo inserted event
 type MongoEventInserted struct {
-	Database string
+	Database   string
 	Collection string
-	Id primitive.ObjectID
-	Record M
+	Id         primitive.ObjectID
+	Record     M
 }
 
 // The structure for the standard mongo updated event
 type MongoEventUpdated struct {
-	Database string
+	Database   string
 	Collection string
-	Id primitive.ObjectID
-	Before M
-	Record M
+	Id         primitive.ObjectID
+	Before     M
+	Record     M
 }
 
 // The structure for the standard mongo deleted event
 type MongoEventDeleted struct {
-	Database string
+	Database   string
 	Collection string
-	Id primitive.ObjectID
-	Record M
-	Soft bool
+	Id         primitive.ObjectID
+	Record     M
+	Soft       bool
 }
 
 // The structure for the standard mongo restored event
 type MongoEventRestored struct {
-	Database string
+	Database   string
 	Collection string
-	Id primitive.ObjectID
-	Record M
+	Id         primitive.ObjectID
+	Record     M
 }

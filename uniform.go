@@ -45,8 +45,6 @@ type AuthOtpRequest struct {
 	Reset bool
 	// the method to send otp; "code": sends a 6 digit code, "token": sends hyperlink
 	Method string
-	// the channel to send the message over "mobile", "email", etc.
-	Channel string
 	// the code to be sent
 	Code *string
 	// the token to be embedded into the hyperlink

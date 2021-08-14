@@ -41,6 +41,8 @@ type AuthOtpRequest struct {
 	Type string
 	// the identifier for the given account
 	Identifier string
+	// is a password reset begin attempted
+	Reset bool
 	// the method to send otp; "code": sends a 6 digit code, "token": sends hyperlink
 	Method string
 	// the channel to send the message over "mobile", "email", etc.

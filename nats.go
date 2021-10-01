@@ -23,6 +23,21 @@ func (s *subscription) Unsubscribe() error {
 	return s.Subscription.Unsubscribe()
 }
 
+func ConnectorAwsEventBridge(d diary.IDiary, c interface{}) (IConn, error) {
+	// future: enable AWS EventBridge support
+	panic("not yet implemented")
+}
+
+func ConnectorAzureEventGrid(d diary.IDiary, c interface{}) (IConn, error) {
+	// future: enable Azure Event Grid support
+	panic("not yet implemented")
+}
+
+func ConnectorGoogleCloudPubSub(d diary.IDiary, c interface{}) (IConn, error) {
+	// future: enable Google Cloud Pub/Sub support
+	panic("not yet implemented")
+}
+
 func ConnectorNats(d diary.IDiary, c *nats.Conn) (IConn, error) {
 	return &conn{
 		Diary: d,

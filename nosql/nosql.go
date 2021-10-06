@@ -3,7 +3,7 @@ package nosql
 import (
 	"github.com/go-diary/diary"
 	"github.com/go-uniform/uniform"
-	"github.com/go-uniform/uniform/interfaces"
+	"github.com/go-uniform/uniform/domain"
 )
 
 type nosql struct {
@@ -12,7 +12,7 @@ type nosql struct {
 	serviceId string
 }
 
-func Request(c uniform.IConn, p diary.IPage, serviceId string) interfaces.INoSql {
+func Request(c uniform.IConn, p diary.IPage, serviceId string) domain.INoSql {
 	return &nosql{
 		c: c,
 		p: p,

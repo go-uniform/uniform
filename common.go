@@ -126,21 +126,3 @@ func (c *conn) SendSmsTemplate(p diary.IPage, timeout time.Duration, asset func(
 
 	c.SendSms(p, timeout, serviceId, body, to...)
 }
-
-func (c *conn) Mongo(p diary.IPage, serviceId string) IMongo {
-	category := "mongo"
-	if serviceId != "" {
-		category = fmt.Sprintf("%s.mongo", serviceId)
-	}
-	var res IMongo
-	if err := p.Scope(category, func(p diary.IPage) {
-		res = &connMongo{
-			c: c,
-			p: p,
-			serviceId: serviceId,
-		}
-	}); err != nil {
-		panic(err)
-	}
-	return res
-}

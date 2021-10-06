@@ -1,6 +1,8 @@
 package uniform
 
 import (
+	"errors"
+	"fmt"
 	"github.com/go-diary/diary"
 	"github.com/nats-io/go-nats"
 	"time"
@@ -60,6 +62,9 @@ func (c *conn) Request(page diary.IPage, subj string, timeout time.Duration, req
 	}
 	msg, err := c.Conn.Request(subj, data, timeout)
 	if err != nil {
+		if err == nats.ErrTimeout {
+			return errors.New(fmt.Sprintf("[%s] %s", subj, err.Error()))
+		}
 		return err
 	}
 	return responseDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)

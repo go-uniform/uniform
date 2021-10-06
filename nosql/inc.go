@@ -20,7 +20,7 @@ type IncResponse struct {
 	Count int64
 }
 
-func (m *nosql) Inc(timeout time.Duration, database, collection string, amounts map[string]float64, query bson.D) ([]interface{}, int64) {
+func (m *nosql) Inc(timeout time.Duration, database, collection string, query bson.D, amounts map[string]float64) ([]interface{}, int64) {
 	subj := "action.nosql.inc"
 	if m.serviceId != "" {
 		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)

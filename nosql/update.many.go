@@ -20,7 +20,7 @@ type UpdateManyResponse struct {
 	Count int64
 }
 
-func (m *nosql) UpdateMany(timeout time.Duration, database, collection string, document interface{}, query bson.D) ([]interface{}, int64) {
+func (m *nosql) UpdateMany(timeout time.Duration, database, collection string, query bson.D, document interface{}) ([]interface{}, int64) {
 	subj := "action.nosql.update.many"
 	if m.serviceId != "" {
 		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)

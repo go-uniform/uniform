@@ -3,7 +3,6 @@ package nosql
 import (
 	"fmt"
 	"github.com/go-diary/diary"
-	"github.com/go-uniform/uniform/domain"
 )
 
 func (m *nosql) CatchErrNoResults(handler func(p diary.IPage)) {
@@ -13,7 +12,7 @@ func (m *nosql) CatchErrNoResults(handler func(p diary.IPage)) {
 			if assertedErr, ok := r.(error); ok {
 				err = assertedErr
 			}
-			if err.Error() != domain.ErrNoResults.Error() {
+			if err.Error() != ErrNoResults.Error() {
 				panic(err)
 			}
 		}

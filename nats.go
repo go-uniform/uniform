@@ -63,7 +63,7 @@ func (c *conn) Request(page diary.IPage, subj string, timeout time.Duration, req
 	msg, err := c.Conn.Request(subj, data, timeout)
 	if err != nil {
 		if err == nats.ErrTimeout {
-			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
+			return errors.New(fmt.Sprintf("%s [%s]", err.Error(), subj))
 		}
 		return err
 	}
@@ -77,7 +77,7 @@ func (c *conn) Publish(page diary.IPage, subj string, request Request) error {
 	}
 	if err := c.Conn.Publish(subj, data); err != nil {
 		if err == nats.ErrTimeout {
-			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
+			return errors.New(fmt.Sprintf("%s [%s]", err.Error(), subj))
 		}
 		return err
 	}
@@ -96,7 +96,7 @@ func (c *conn) ChainRequest(page diary.IPage, subj string, original IRequest, re
 	msg, err := c.Conn.Request(subj, data, remainder)
 	if err != nil {
 		if err == nats.ErrTimeout {
-			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
+			return errors.New(fmt.Sprintf("%s [%s]", err.Error(), subj))
 		}
 		return err
 	}
@@ -114,7 +114,7 @@ func (c *conn) ChainPublish(page diary.IPage, subj string, original IRequest, re
 	}
 	if err := c.Conn.Publish(subj, data); err != nil {
 		if err == nats.ErrTimeout {
-			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
+			return errors.New(fmt.Sprintf("%s [%s]", err.Error(), subj))
 		}
 		return err
 	}

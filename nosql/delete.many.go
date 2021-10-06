@@ -12,6 +12,7 @@ type DeleteManyRequest struct {
 	Database string
 	Collection string
 	Query bson.D
+	SoftDelete bool
 }
 
 type DeleteManyResponse struct {
@@ -23,6 +24,16 @@ func (m *nosql) DeleteMany(timeout time.Duration, database, collection string, q
 	subj := "action.nosql.delete.many"
 	if m.serviceId != "" {
 		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
+	}
+
+	if m.softDelete {
+		if query != nil {
+			query = bson.D{
+				{"deleteAt", time.Now()},
+			}
+		} else {
+			query = append(query, bson.E{Key: "deletedAt", Value: time.Now()})
+		}
 	}
 
 	var model DeleteManyResponse

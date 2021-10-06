@@ -26,6 +26,16 @@ func (m *nosql) UpdateMany(timeout time.Duration, database, collection string, q
 		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
 	}
 
+	if m.softDelete {
+		if query != nil {
+			query = bson.D{
+				{"deleteAt", time.Now()},
+			}
+		} else {
+			query = append(query, bson.E{Key: "deletedAt", Value: time.Now()})
+		}
+	}
+
 	var model UpdateManyResponse
 
 	if err := m.c.Request(m.p, subj, timeout, uniform.Request{

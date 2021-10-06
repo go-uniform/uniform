@@ -17,8 +17,8 @@ type INoSql interface {
 	/* Single */
 	FindOne(timeout time.Duration, database, collection string, sort string, skip int64, query bson.D, model interface{})
 	InsertOne(timeout time.Duration, database, collection string, document interface{}, model interface{})
-	UpdateOne(timeout time.Duration, database, collection string, identifier, document interface{}, model interface{})
-	DeleteOne(timeout time.Duration, database, collection string, document interface{}, model interface{})
+	UpdateOne(timeout time.Duration, database, collection string, query bson.D, document interface{}, model interface{})
+	DeleteOne(timeout time.Duration, database, collection string, query bson.D, model interface{})
 
 	/* Bulk */
 	FindMany(timeout time.Duration, database, collection string, sort string, skip, limit int64, query bson.D, model interface{})

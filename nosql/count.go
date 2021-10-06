@@ -20,6 +20,16 @@ func (m *nosql) Count(timeout time.Duration, database, collection string, query 
 		subj = fmt.Sprintf("%s.%s", m.serviceId, subj)
 	}
 
+	if m.softDelete {
+		if query != nil {
+			query = bson.D{
+				{"deleteAt", time.Now()},
+			}
+		} else {
+			query = append(query, bson.E{Key: "deletedAt", Value: time.Now()})
+		}
+	}
+
 	if err := m.c.Request(m.p, subj, timeout, uniform.Request{
 		Model: CountRequest{
 			Database: database,

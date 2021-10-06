@@ -7,12 +7,12 @@ import (
 
 // A definition of the public functions for a mongo interface
 type INoSql interface {
+	Count(timeout time.Duration, database, collection string, query bson.D) int64
 	InsertOne(timeout time.Duration, database, collection string, document interface{}, model interface{})
 	FindOne(timeout time.Duration, database, collection string, sort string, skip int64, query bson.D, model interface{})
 
 	//CatchNoDocumentsErr(handler func(p diary.IPage))
 	//Aggregate(timeout time.Duration, database, collection string, stages []M, model interface{})
-	//Count(timeout time.Duration, database, collection string, query M) int64
 	//GroupCount(timeout time.Duration, database, collection, groupField string, query M) int64
 	//Avg(timeout time.Duration, database, collection, field string, query M) float64
 	//CountMonthly(timeout time.Duration, database, collection string, query M) map[string]float64

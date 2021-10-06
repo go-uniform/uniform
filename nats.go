@@ -63,7 +63,7 @@ func (c *conn) Request(page diary.IPage, subj string, timeout time.Duration, req
 	msg, err := c.Conn.Request(subj, data, timeout)
 	if err != nil {
 		if err == nats.ErrTimeout {
-			return errors.New(fmt.Sprintf("[%s] %s", subj, err.Error()))
+			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
 		}
 		return err
 	}
@@ -76,6 +76,9 @@ func (c *conn) Publish(page diary.IPage, subj string, request Request) error {
 		return err
 	}
 	if err := c.Conn.Publish(subj, data); err != nil {
+		if err == nats.ErrTimeout {
+			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
+		}
 		return err
 	}
 	return nil
@@ -84,7 +87,7 @@ func (c *conn) Publish(page diary.IPage, subj string, request Request) error {
 func (c *conn) ChainRequest(page diary.IPage, subj string, original IRequest, request Request, scope S) error {
 	remainder := original.Remainder()
 	if remainder <= 0 {
-		return ErrTimeout
+		return errors.New(fmt.Sprintf("%s [%s]", ErrTimeout, subj))
 	}
 	data, err := requestEncode(page, request, original.Timeout(), original.StartedAt())
 	if err != nil {
@@ -92,6 +95,9 @@ func (c *conn) ChainRequest(page diary.IPage, subj string, original IRequest, re
 	}
 	msg, err := c.Conn.Request(subj, data, remainder)
 	if err != nil {
+		if err == nats.ErrTimeout {
+			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
+		}
 		return err
 	}
 	return responseDecode(c, c.Diary, subj, msg.Reply, msg.Data, scope)
@@ -100,13 +106,16 @@ func (c *conn) ChainRequest(page diary.IPage, subj string, original IRequest, re
 func (c *conn) ChainPublish(page diary.IPage, subj string, original IRequest, request Request) error {
 	remainder := original.Remainder()
 	if remainder <= 0 {
-		return ErrTimeout
+		return errors.New(fmt.Sprintf("%s [%s]", ErrTimeout, subj))
 	}
 	data, err := requestEncode(page, request, original.Timeout(), original.StartedAt())
 	if err != nil {
 		return err
 	}
 	if err := c.Conn.Publish(subj, data); err != nil {
+		if err == nats.ErrTimeout {
+			return errors.New(fmt.Sprintf("%s [%s]", subj, err.Error()))
+		}
 		return err
 	}
 	return nil

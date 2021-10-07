@@ -29,10 +29,10 @@ func (m *nosql) DeleteMany(timeout time.Duration, database, collection string, q
 	if m.softDelete {
 		if query != nil {
 			query = bson.D{
-				{"deleteAt", time.Now()},
+				{"deleteAt", nil},
 			}
 		} else {
-			query = append(query, bson.E{Key: "deletedAt", Value: time.Now()})
+			query = append(query, bson.E{Key: "deletedAt", Value: nil})
 		}
 	}
 

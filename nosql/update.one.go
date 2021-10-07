@@ -24,10 +24,10 @@ func (m *nosql) UpdateOne(timeout time.Duration, database, collection string, qu
 	if m.softDelete {
 		if query != nil {
 			query = bson.D{
-				{"deleteAt", time.Now()},
+				{"deleteAt", nil},
 			}
 		} else {
-			query = append(query, bson.E{Key: "deletedAt", Value: time.Now()})
+			query = append(query, bson.E{Key: "deletedAt", Value: nil})
 		}
 	}
 

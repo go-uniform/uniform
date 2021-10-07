@@ -23,10 +23,10 @@ func (m *nosql) Count(timeout time.Duration, database, collection string, query 
 	if m.softDelete {
 		if query != nil {
 			query = bson.D{
-				{"deleteAt", time.Now()},
+				{"deleteAt", nil},
 			}
 		} else {
-			query = append(query, bson.E{Key: "deletedAt", Value: time.Now()})
+			query = append(query, bson.E{Key: "deletedAt", Value: nil})
 		}
 	}
 

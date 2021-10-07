@@ -1,6 +1,11 @@
 package uniform
 
-import "strings"
+import (
+	"crypto/sha512"
+	"encoding/base64"
+	"fmt"
+	"strings"
+)
 
 // get the index of a string inside of a string array
 func IndexOf(haystack []string, needle string, caseSensitive bool) int {
@@ -51,4 +56,11 @@ func Filter(items []string, filterItems []string) []string {
 		newItems = append(newItems, item)
 	}
 	return newItems
+}
+
+// generate a sha512 hash for the given value/salt combo
+func Hash(value interface{}, salt string) string {
+	encoder := sha512.New()
+	encoder.Write([]byte(fmt.Sprintf(`%s%v`, salt, value)))
+	return base64.StdEncoding.EncodeToString(encoder.Sum(nil))
 }

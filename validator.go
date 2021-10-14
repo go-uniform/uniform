@@ -113,7 +113,7 @@ func (v *validator) Required(document M, fields ...string) M {
 		value := document[field]
 		valid, errors := ValidateRequired(value)
 		if !valid {
-			if errors != nil {
+			if errors == nil {
 				panic("invalid required validation without any errors")
 			}
 			v.Error(field, errors...)

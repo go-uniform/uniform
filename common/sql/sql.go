@@ -14,12 +14,7 @@ type sql struct {
 }
 
 func connector(c uniform.IConn, p diary.IPage, serviceId, connectionString string, softDelete bool) domain.ISql {
-	return &sql{
-		c: c,
-		p: p,
-		serviceId: serviceId,
-		softDelete: softDelete,
-	}
+	return nil
 }
 
 func Connector(c uniform.IConn, p diary.IPage, serviceId, connectionString string) domain.ISql {

@@ -40,7 +40,7 @@ func NewValidator() IValidator {
 	}
 }
 
-func RequestValidator(request M, fields ...string) IValidator {
+func RequestValidator(request M, fields ...string) (IValidator, M) {
 	validator := NewValidator()
 
 	emptyKeys := make([]string, 0)
@@ -61,7 +61,7 @@ func RequestValidator(request M, fields ...string) IValidator {
 		}
 	}
 
-	return validator
+	return validator, request
 }
 
 func (v *validator) Error(field string, errors ...string) {

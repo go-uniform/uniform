@@ -5,7 +5,10 @@ import (
 )
 
 var ValidateRequired = func(value interface{}) (bool, []string) {
-	panic("not yet implemented")
+	if IsEmpty(value) {
+		return false, []string{ "May not be empty" }
+	}
+	return true, nil
 }
 
 var ValidateMinimumInt = func(minimum int64, value interface{}) (bool, []string) {

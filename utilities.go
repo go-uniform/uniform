@@ -4,6 +4,7 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -48,6 +49,46 @@ var Filter = func(items, filters []string, caseSensitive bool) []string {
 	}
 
 	return filteredItems
+}
+
+// private function required for circular reference
+func isEmpty(object interface{}) bool {
+	objValue := reflect.ValueOf(object)
+
+	switch objValue.Kind() {
+	// collection types are empty when they have no element
+	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
+		return objValue.Len() == 0
+		// pointers are empty if nil or if the value they point to is empty
+	case reflect.Ptr:
+		if objValue.IsNil() {
+			return true
+		}
+		deref := objValue.Elem().Interface()
+		return isEmpty(deref)
+		// for all other types, compare against the zero value
+	default:
+		zero := reflect.Zero(objValue.Type())
+		return reflect.DeepEqual(object, zero.Interface())
+	}
+}
+
+// determine if a value is empty or not
+var IsEmpty = func(value interface{}) bool {
+	if value == nil || value == "" {
+		return true
+	}
+
+	stringValue := strings.TrimSpace(fmt.Sprint(value))
+	if stringValue == "" || stringValue == "nil" || stringValue == "<nil>" {
+		return true
+	}
+
+	if strings.HasPrefix(stringValue, "0001-01-01") {
+		return true
+	}
+
+	return isEmpty(value)
 }
 
 // generate a sha512 hash for the given value/salt combo

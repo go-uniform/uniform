@@ -1,141 +1,243 @@
 package uniform
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestIndexOf(t *testing.T) {
-	tests := []struct {
-		Haystacks      []string
-		Needle         string
-		CaseSensitive  bool
-		ExpectedOutput int
-		ExpectedError  string
-	}{
-		//Defensive tests
-		{nil, "Needle1", false, -1, "specify an array to search through"},
-		{[]string{"needle1", "needle2"}, "", false, -1, "specify a string to search for"},
+	type TestCase struct {
+		Haystack      []string
+		Needle        string
+		CaseSensitive bool
 
-		//Positive tests
-		{[]string{"needle1", "needle2"}, "needle1", false, 0, ""},
-		{[]string{"needle1", "needle1", "needle2"}, "needle1", false, 0, ""},
-		{[]string{"needle1", "needle1", "needle2", "Needle2"}, "Needle2", true, 3, ""},
-
-		//Negative tests
-		{[]string{"needle1", "needle2"}, "needle3", false, -1, ""},
-		{[]string{"needle1", "needle2"}, "Needle2", true, -1, ""},
+		ExpectedPanicMessage string
+		ExpectedOutput       int
 	}
 
-	for i, test := range tests {
-		func() {
-			// recovery
-			defer func() {
-				if err := recover(); err != nil {
-					if test.ExpectedError != fmt.Sprintf("%v", err) {
-						t.Errorf("[%d] | haystack %s | needle %s | case-sensitive %v | error = %v; want %v", i, test.Haystacks, test.Needle, test.CaseSensitive, err, test.ExpectedError)
-					}
-				}
-			}()
+	tests := []TestCase{
+		/* Defensive tests */
+		// this function will not have any defensive tests
 
-			// execution
-			output := IndexOf(test.Haystacks, test.Needle, test.CaseSensitive)
+		//Positive tests
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "needle1",
+			CaseSensitive: false,
 
-			// assertion
-			if test.ExpectedError != "" {
-				t.Errorf("[%d] | haystack %s | needle %s | case-sensitive %v  error = <empty>; want %v", i, test.Haystacks, test.Needle, test.CaseSensitive, test.ExpectedError)
-			} else if output != test.ExpectedOutput {
-				t.Errorf("[%d] | haystack %s | needle %s | case-sensitive %v  output = %v; want %v", i, test.Haystacks, test.Needle, test.CaseSensitive, output, test.ExpectedOutput)
-			}
-		}()
+			ExpectedOutput: 0,
+		},
+		{
+			Haystack:      []string{"needle1", "needle1", "needle2"},
+			Needle:        "needle1",
+			CaseSensitive: false,
+
+			ExpectedOutput: 0,
+		},
+		{
+			Haystack:      []string{"needle1", "needle1", "needle2", "Needle2"},
+			Needle:        "Needle2",
+			CaseSensitive: true,
+
+			ExpectedOutput: 3,
+		},
+
+		//Negative tests
+		{
+			Haystack:      nil,
+			Needle:        "Needle1",
+			CaseSensitive: false,
+
+			ExpectedOutput: -1,
+		},
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "",
+			CaseSensitive: false,
+
+			ExpectedOutput: -1,
+		},
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "needle3",
+			CaseSensitive: false,
+
+			ExpectedOutput: -1,
+		},
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "Needle2",
+			CaseSensitive: true,
+
+			ExpectedOutput: -1,
+		},
+	}
+
+	for index, test := range tests {
+		var output int
+		testWrapper(t, test.ExpectedPanicMessage, func() {
+			output = IndexOf(test.Haystack, test.Needle, test.CaseSensitive)
+		})
+		if !assert.Equal(t, test.ExpectedOutput, output, "Test #%d", index+1) {
+			break
+		}
 	}
 }
 
 func TestContains(t *testing.T) {
-	tests := []struct {
-		Haystacks      []string
-		Needle         string
-		CaseSensitive  bool
-		ExpectedOutput bool
-		ExpectedError  string
-	}{
+	type TestCase struct {
+		Haystack      []string
+		Needle        string
+		CaseSensitive bool
 
-		//Defensive tests
-		{nil, "Needle1", true, false, "specify an array to search through"},
-		{[]string{"needle1", "needle2"}, "", true, false, "specify a string to search for"},
-
-		//Positive tests
-		{[]string{"needle1", "needle2"}, "needle2", false, true, ""},
-
-		//Negative tests
-		{[]string{"needle1", "needle2"}, "Needle1", true, false, ""},
-		{[]string{"needle1", "needle1"}, "needle1", true, true, ""},
+		ExpectedPanicMessage string
+		ExpectedOutput       bool
 	}
 
-	for i, test := range tests {
-		func() {
-			// recovery
-			defer func() {
-				if err := recover(); err != nil {
-					if test.ExpectedError != fmt.Sprintf("%v", err) {
-						t.Errorf("[%d] | haystack %s | needle %s | case-sensitive %v | error = %v; want %v", i, test.Haystacks, test.Needle, test.CaseSensitive, err, test.ExpectedError)
-					}
-				}
-			}()
+	tests := []TestCase{
+		/* Defensive tests */
+		// this function will not have any defensive tests
 
-			// execution
-			output := Contains(test.Haystacks, test.Needle, test.CaseSensitive)
+		//Positive tests
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "needle1",
+			CaseSensitive: false,
 
-			// assertion
-			if test.ExpectedError != "" {
-				t.Errorf("[%d] | haystack %s | needle %s | case-sensitive %v  error = <empty>; want %v", i, test.Haystacks, test.Needle, test.CaseSensitive, test.ExpectedError)
-			} else if output != test.ExpectedOutput {
-				t.Errorf("[%d] | haystack %s | needle %s | case-sensitive %v  output = %v; want %v", i, test.Haystacks, test.Needle, test.CaseSensitive, output, test.ExpectedOutput)
-			}
-		}()
+			ExpectedOutput: true,
+		},
+		{
+			Haystack:      []string{"needle1", "needle1", "needle2"},
+			Needle:        "needle1",
+			CaseSensitive: false,
+
+			ExpectedOutput: true,
+		},
+		{
+			Haystack:      []string{"needle1", "needle1", "needle2", "Needle2"},
+			Needle:        "Needle2",
+			CaseSensitive: true,
+
+			ExpectedOutput: true,
+		},
+
+		//Negative tests
+		{
+			Haystack:      nil,
+			Needle:        "Needle1",
+			CaseSensitive: false,
+
+			ExpectedOutput: false,
+		},
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "",
+			CaseSensitive: false,
+
+			ExpectedOutput: false,
+		},
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "needle3",
+			CaseSensitive: false,
+
+			ExpectedOutput: false,
+		},
+		{
+			Haystack:      []string{"needle1", "needle2"},
+			Needle:        "Needle2",
+			CaseSensitive: true,
+
+			ExpectedOutput: false,
+		},
+	}
+
+	for index, test := range tests {
+		var output bool
+		testWrapper(t, test.ExpectedPanicMessage, func() {
+			output = Contains(test.Haystack, test.Needle, test.CaseSensitive)
+		})
+		if !assert.Equal(t, test.ExpectedOutput, output, "Test #%d", index+1) {
+			break
+		}
 	}
 }
 
 func TestFilter(t *testing.T) {
-	tests := []struct {
-		Items          []string
-		FilterItems    []string
-		ExpectedOutput []string
-	}{
-		//Defensive tests
-		{nil, nil, nil},
-		{nil, []string{}, nil},
-		{[]string{}, nil, []string{}},
-		{[]string{}, []string{}, []string{}},
+	type TestCase struct {
+		Items         []string
+		Filters       []string
+		CaseSensitive bool
 
-		//Positive tests
-		{[]string{"needle1", "needle2"}, []string{"needle1"}, []string{"needle2"}},
-
-		//Negative tests
-		{[]string{"needle1", "needle2"}, []string{"needle3"}, []string{"needle1", "needle2"}},
+		ExpectedPanicMessage string
+		ExpectedOutput       []string
 	}
 
-	for i, test := range tests {
-		func() {
-			// execution
-			output := Filter(test.Items, test.FilterItems)
+	tests := []TestCase{
+		/* Defensive tests */
+		{
+			Items:   nil,
+			Filters: nil,
 
-			hasAll := true
-			if len(output) != len(test.ExpectedOutput) {
-				hasAll = false
-			} else {
-				for _, item := range test.ExpectedOutput {
-					if !Contains(output, item, true) {
-						hasAll = false
-						break
-					}
-				}
-			}
+			ExpectedOutput: nil,
+		},
+		{
+			Items:   nil,
+			Filters: []string{},
 
-			// assertion
-			if !hasAll {
-				t.Errorf("[%d] | items %v | filter-items %v | output = %v; want %v", i, test.Items, test.FilterItems, output, test.ExpectedOutput)
-			}
-		}()
+			ExpectedOutput: nil,
+		},
+		{
+			Items:   []string{},
+			Filters: nil,
+
+			ExpectedOutput: []string{},
+		},
+		{
+			Items:   []string{},
+			Filters: []string{},
+
+			ExpectedOutput: []string{},
+		},
+
+		//Positive tests
+		{
+			Items:   []string{"needle1", "needle2"},
+			Filters: []string{"needle1"},
+
+			ExpectedOutput: []string{"needle2"},
+		},
+		{
+			Items:   []string{"Needle1", "needle2"},
+			Filters: []string{"Needle1"},
+			CaseSensitive: true,
+
+			ExpectedOutput: []string{"needle2"},
+		},
+
+		//Negative tests
+		{
+			Items:   []string{"needle1", "needle2"},
+			Filters: []string{"needle3"},
+
+			ExpectedOutput: []string{"needle1", "needle2"},
+		},
+		{
+			Items:   []string{"needle1", "needle2"},
+			Filters: []string{"Needle1"},
+			CaseSensitive: true,
+
+			ExpectedOutput: []string{"needle1", "needle2"},
+		},
+	}
+
+	for index, test := range tests {
+		var output []string
+		testWrapper(t, test.ExpectedPanicMessage, func() {
+			output = Filter(test.Items, test.Filters, test.CaseSensitive)
+		})
+		if !assert.Equal(t, test.ExpectedOutput, output, "Test #%d", index+1) {
+			break
+		}
 	}
 }

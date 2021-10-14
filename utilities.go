@@ -7,14 +7,10 @@ import (
 	"strings"
 )
 
-// get the index of a string inside of a string array
-func IndexOf(haystack []string, needle string, caseSensitive bool) int {
-	if haystack == nil {
-		panic("specify an array to search through")
-	}
-	if needle == "" {
-		panic("specify a string to search for")
-	}
+/* IndexOf
+Get the index of a string inside of a string array
+*/
+var IndexOf = func(haystack []string, needle string, caseSensitive bool) int {
 	if caseSensitive {
 		for i, item := range haystack {
 			if item == needle {
@@ -33,34 +29,38 @@ func IndexOf(haystack []string, needle string, caseSensitive bool) int {
 }
 
 // see if a string array contains a given string
-func Contains(haystack []string, needle string, caseSensitive bool) bool {
-	if haystack == nil {
-		panic("specify an array to search through")
-	}
-	if needle == "" {
-		panic("specify a string to search for")
-	}
+var Contains = func(haystack []string, needle string, caseSensitive bool) bool {
 	return IndexOf(haystack, needle, caseSensitive) != -1
 }
 
 // trim the filterItems from the items array
-func Filter(items []string, filterItems []string) []string {
-	if filterItems == nil || len(filterItems) <= 0 {
+var Filter = func(items, filters []string, caseSensitive bool) []string {
+	if filters == nil || len(filters) <= 0 {
 		return items
 	}
-	newItems := make([]string, 0)
+
+	filteredItems := make([]string, 0)
 	for _, item := range items {
-		if Contains(filterItems, item, false) {
+		if Contains(filters, item, caseSensitive) {
 			continue
 		}
-		newItems = append(newItems, item)
+		filteredItems = append(filteredItems, item)
 	}
-	return newItems
+
+	return filteredItems
 }
 
 // generate a sha512 hash for the given value/salt combo
-func Hash(value interface{}, salt string) string {
+var Hash = func(value interface{}, salt string) string {
+	concatenatedData := []byte(fmt.Sprintf(`%s%v`, salt, value))
+
 	encoder := sha512.New()
-	encoder.Write([]byte(fmt.Sprintf(`%s%v`, salt, value)))
-	return base64.StdEncoding.EncodeToString(encoder.Sum(nil))
+	_, err := encoder.Write(concatenatedData)
+	if err != nil {
+		panic(err)
+	}
+	hashedData := encoder.Sum(nil)
+
+	base64EncodedString := base64.StdEncoding.EncodeToString(hashedData)
+	return base64EncodedString
 }

@@ -11,6 +11,8 @@ var testWrapper = func(t *testing.T, expectedPanicMessage string, testCase func(
 		if r := recover(); r != nil {
 			panicMessage := fmt.Sprint(r)
 			assert.Equal(t, expectedPanicMessage, panicMessage)
+		} else {
+			assert.Equal(t, expectedPanicMessage, "")
 		}
 	}()
 
@@ -20,8 +22,8 @@ var testWrapper = func(t *testing.T, expectedPanicMessage string, testCase func(
 func TestValidateRequired(t *testing.T) {
 	type TestCase struct {
 		Value interface{}
-		ExpectedPanicMessage string
 
+		ExpectedPanicMessage string
 		ExpectedValid bool
 		ExpectedErrors []string
 	}
@@ -30,7 +32,7 @@ func TestValidateRequired(t *testing.T) {
 		/* Defensive tests */
 		// this function will not have any defensive tests
 
-		// Positive tests
+		/* Positive tests */
 		{
 			Value: "test",
 			ExpectedValid: true,
@@ -67,7 +69,7 @@ func TestValidateRequired(t *testing.T) {
 			ExpectedErrors: nil,
 		},
 
-		// Negative tests
+		/* Negative tests */
 		{
 			Value: nil,
 			ExpectedValid: false,
@@ -114,7 +116,7 @@ func TestValidateMinimumInt(t *testing.T) {
 		/* Defensive tests */
 		// this function will not have any defensive tests
 
-		// Positive tests
+		/* Positive tests */
 		{
 			Minimum: 0,
 			Value: 0,
@@ -164,7 +166,7 @@ func TestValidateMinimumInt(t *testing.T) {
 			ExpectedErrors: nil,
 		},
 
-		// Negative tests
+		/* Negative tests */
 		{
 			Minimum: 1,
 			Value: 0,
@@ -232,7 +234,7 @@ func TestValidateMaximumInt(t *testing.T) {
 		/* Defensive tests */
 		// this function will not have any defensive tests
 
-		// Positive tests
+		/* Positive tests */
 		{
 			Maximum: 0,
 			Value: 0,
@@ -282,7 +284,7 @@ func TestValidateMaximumInt(t *testing.T) {
 			ExpectedErrors: nil,
 		},
 
-		// Negative tests
+		/* Negative tests */
 		{
 			Maximum: 0,
 			Value: 1,
@@ -350,7 +352,7 @@ func TestValidateMinimumFloat(t *testing.T) {
 		/* Defensive tests */
 		// this function will not have any defensive tests
 
-		// Positive tests
+		/* Positive tests */
 		{
 			Minimum: 0.0,
 			Value: 0.0,
@@ -382,7 +384,7 @@ func TestValidateMinimumFloat(t *testing.T) {
 			ExpectedErrors: nil,
 		},
 
-		// Negative tests
+		/* Negative tests */
 		{
 			Minimum: 1.0,
 			Value: 0.0,
@@ -450,7 +452,7 @@ func TestValidateMaximumFloat(t *testing.T) {
 		/* Defensive tests */
 		// this function will not have any defensive tests
 
-		// Positive tests
+		/* Positive tests */
 		{
 			Maximum: 0.0,
 			Value: 0.0,
@@ -482,7 +484,7 @@ func TestValidateMaximumFloat(t *testing.T) {
 			ExpectedErrors: nil,
 		},
 
-		// Negative tests
+		/* Negative tests */
 		{
 			Maximum: 0.0,
 			Value: 1.0,

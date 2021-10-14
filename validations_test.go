@@ -325,7 +325,7 @@ func TestValidateMaximumInt(t *testing.T) {
 		var valid bool
 		var errors []string
 		testWrapper(t, "", func() {
-			valid, errors = ValidateMinimumInt(test.Maximum, test.Value)
+			valid, errors = ValidateMaximumInt(test.Maximum, test.Value)
 		})
 		if !assert.Equal(t, test.ExpectedErrors, errors, "Test #%d", index + 1) {
 			break
@@ -525,7 +525,7 @@ func TestValidateMaximumFloat(t *testing.T) {
 		var valid bool
 		var errors []string
 		testWrapper(t, "", func() {
-			valid, errors = ValidateMinimumFloat(test.Maximum, test.Value)
+			valid, errors = ValidateMaximumFloat(test.Maximum, test.Value)
 		})
 		if !assert.Equal(t, test.ExpectedErrors, errors, "Test #%d", index + 1) {
 			break

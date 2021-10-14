@@ -1,35 +1,38 @@
 package uniform
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-type message struct {
-	Message string
-}
-
 func TestCommunication(t *testing.T)  {
-	input := message{
+	type payload struct {
+		Message string
+	}
+
+	expected := payload{
 		Message: "hello world!",
 	}
-	data, err := encode(input)
+	data, err := encode(expected)
 	if err != nil {
 		panic(err)
 	}
 
-	var output message
+	var output payload
 	if err := decode(data, &output); err != nil {
 		panic(err)
 	}
 
-	if output != input {
-		t.Error("output model is not the same as the input model")
-	}
+	assert.Equal(t, expected, output)
 }
 
 func TestCommunicationMismatchError(t *testing.T)  {
-	input := message{
-		Message: "hello world!",
+	type payload struct {
+		Value int
+	}
+
+	input := payload{
+		Value: 123,
 	}
 	data, err := encode(input)
 	if err != nil {
@@ -38,7 +41,9 @@ func TestCommunicationMismatchError(t *testing.T)  {
 
 	var output string
 	err = decode(data, &output)
-	if err == nil || err.Error() != "gob: decoding into local type *string, received remote type message = struct { Message string; }" {
-		t.Error("expecting mismatch error but did not receive one")
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
 	}
+	assert.Contains(t, errMsg, "error decoding")
 }

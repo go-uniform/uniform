@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// A definition of the public functions for a mongo interface
+// A definition of the public functions for a nosql interface
 type INoSql interface {
 	CatchErrNoResults(handler func(p diary.IPage))
 

@@ -69,10 +69,3 @@ type ISubscription interface {
 func Alert(code int, message string) {
 	panic(fmt.Sprintf("alert:%d:%s", code, message))
 }
-
-// A definition of the public functions for a request interface
-type IValidator interface {
-	Error(field, error string)
-	Check()
-	SilentCheck() string
-}

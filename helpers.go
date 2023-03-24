@@ -10,6 +10,8 @@ import (
 func encode(model interface{}) ([]byte, error) {
 	// switch between common top value types and marshal using an adapter struct
 	switch value := model.(type) {
+	case nil:
+		return bson.Marshal(struct{Value interface{}}{Value:nil})
 	case string:
 		return bson.Marshal(struct{Value string}{Value:value})
 	case []byte:

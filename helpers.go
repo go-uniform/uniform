@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-diary/diary"
 	"go.mongodb.org/mongo-driver/bson"
+	"strings"
 	"time"
 )
 
@@ -177,12 +178,18 @@ func requestDecode(conn IConn, d diary.IDiary, subject, replyChannel string, dat
 				})
 
 				if temp.CanReply() {
-					if err := temp.Reply(Request{
-						Error: message,
-					}); err != nil {
-						p.Error("reply", err.Error(), diary.M{
-							"err": err,
-						})
+					var isTimeoutError = strings.HasPrefix(message, ErrTimeout.Error())
+					var isCantReplyError = strings.HasPrefix(message, ErrCantReply.Error())
+					var isGeneralError = !isTimeoutError && !isCantReplyError
+
+					if isGeneralError {
+						if err := temp.Reply(Request{
+							Error: message,
+						}); err != nil {
+							p.Error("reply", err.Error(), diary.M{
+								"err": err,
+							})
+						}
 					}
 				}
 			}

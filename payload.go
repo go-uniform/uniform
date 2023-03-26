@@ -52,7 +52,8 @@ func (p *payload) Context() M {
 }
 
 func (p *payload) CanReply() bool {
-	return p.ReplyChannel != nil && *p.ReplyChannel != ""
+	remainder := p.Remainder()
+	return remainder > 0 && p.ReplyChannel != nil && *p.ReplyChannel != ""
 }
 
 func (p *payload) Reply(request Request) error {

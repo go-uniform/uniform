@@ -1,6 +1,7 @@
 package uniform
 
 import (
+	"fmt"
 	"github.com/go-diary/diary"
 	"time"
 )
@@ -8,6 +9,7 @@ import (
 type payload struct {
 	conn             IConn
 	ReplyChannel     *string
+	Subject          string
 	Request          Request
 	PageJson         []byte
 	page             diary.IPage
@@ -56,10 +58,10 @@ func (p *payload) CanReply() bool {
 func (p *payload) Reply(request Request) error {
 	remainder := p.Remainder()
 	if remainder <= 0 {
-		panic(ErrTimeout)
+		panic(fmt.Sprintf("%s [%s]", ErrTimeout, p.Subject))
 	}
 	if p.ReplyChannel == nil {
-		panic(ErrCantReply)
+		panic(fmt.Sprintf("%s [%s]", ErrCantReply, p.Subject))
 	}
 	return p.conn.ChainPublish(p.page, *p.ReplyChannel, p, request)
 }
@@ -74,10 +76,10 @@ func (p *payload) Channel() string {
 func (p *payload) ReplyContinue(request Request, scope S) error {
 	remainder := p.Remainder()
 	if remainder <= 0 {
-		panic(ErrTimeout)
+		panic(fmt.Sprintf("%s [%s]", ErrTimeout, p.Subject))
 	}
 	if p.ReplyChannel == nil {
-		panic(ErrCantReply)
+		panic(fmt.Sprintf("%s [%s]", ErrCantReply, p.Subject))
 	}
 	return p.conn.ChainRequest(p.page, *p.ReplyChannel, p, request, scope)
 }

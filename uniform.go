@@ -50,6 +50,7 @@ type IRequest interface {
 	Reply(Request) error
 	ReplyContinue(Request, S) error
 	Raw() Request
+	Bytes() []byte
 	Channel() string
 
 	Timeout() time.Duration

@@ -3,6 +3,7 @@ package uniform
 import (
 	"fmt"
 	"github.com/go-diary/diary"
+	"go.mongodb.org/mongo-driver/bson"
 	"time"
 )
 
@@ -23,6 +24,14 @@ func (p *payload) Conn() IConn {
 
 func (p *payload) Raw() Request {
 	return p.Request
+}
+
+func (p *payload) Bytes() []byte {
+	data, err := bson.Marshal(p)
+	if err != nil {
+		panic(err)
+	}
+	return data
 }
 
 func (p *payload) Read(v interface{}) {

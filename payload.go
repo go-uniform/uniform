@@ -27,7 +27,7 @@ func (p *payload) Raw() Request {
 }
 
 func (p *payload) Bytes() []byte {
-	data, err := bson.Marshal(p)
+	data, err := bson.Marshal(p.Request)
 	if err != nil {
 		panic(err)
 	}

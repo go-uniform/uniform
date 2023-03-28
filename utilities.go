@@ -4,11 +4,24 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"reflect"
 	"strings"
 )
 
-/* IndexOf
+var ParseRequest = func(data []byte) (Request, error) {
+	var request Request
+
+	if err := bson.Unmarshal(data, &request); err != nil {
+		return request, err
+	}
+
+	return request, nil
+}
+
+/*
+	IndexOf
+
 Get the index of a string inside of a string array
 */
 var IndexOf = func(haystack []string, needle string, caseSensitive bool) int {

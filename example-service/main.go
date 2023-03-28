@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Client = "example-service"
+	Client  = "example-service"
 	Project = "example-service"
 	Service = "example-service"
 )

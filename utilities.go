@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"reflect"
 	"strings"
 )
@@ -14,6 +15,12 @@ var ParseRequest = func(data []byte) (Request, error) {
 
 	if err := bson.Unmarshal(data, &request); err != nil {
 		return request, err
+	}
+
+	switch value := request.Model.(type) {
+	case primitive.Binary:
+		request.Model = value.Data
+		break
 	}
 
 	return request, nil

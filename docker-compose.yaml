@@ -1,7 +1,8 @@
 version: "3.9"
 services:
+
   nats:
-    image: "nats"
+    image: "ghcr.io/go-uniform/nats"
     volumes:
       - type: bind
         source: ./docker-compose-resources/ssl
@@ -9,6 +10,39 @@ services:
     ports:
       - 4222:4222
     command: "--tls --tlscert /etc/ssl/certs/uniform-nats.crt --tlskey /etc/ssl/private/uniform-nats.key"
+    healthcheck:
+      test: ["CMD", "/client", "test"]
+
+  service-mongo:
+    image: mongo
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval \"db.runCommand( { ping: 1 })\" | grep \"ok: 1\" || exit 1"]
+
+  service-mongo-express:
+    image: mongo-express
+    depends_on:
+      service-mongo:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@service-mongo:27017/
+
   service-rabbitmq:
     image: "rabbitmq:management"
     volumes:
@@ -29,11 +63,27 @@ services:
       - 15672:15672
     healthcheck:
       test: ["CMD", "/opt/rabbitmq/sbin/rabbitmqctl", "ping"]
+
+  mongo:
+    image: "ghcr.io/go-uniform/mongo"
+    depends_on:
+      nats:
+        condition: service_healthy
+      service-mongo:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+    healthcheck:
+      test: ["CMD", "/service", "command:ping"]
+    command: "run"
+
   rabbitmq:
     image: "ghcr.io/go-uniform/rabbitmq"
     depends_on:
       nats:
-        condition: service_started
+        condition: service_healthy
       service-rabbitmq:
         condition: service_healthy
     volumes:
@@ -43,11 +93,12 @@ services:
     healthcheck:
       test: ["CMD", "/service", "command:ping"]
     command: "run"
+
   infobip:
     image: "ghcr.io/go-uniform/infobip"
     depends_on:
       nats:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     volumes:

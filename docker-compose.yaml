@@ -1,0 +1,59 @@
+version: "3.9"
+services:
+  nats:
+    image: "nats"
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+    ports:
+      - 4222:4222
+    command: "--tls --tlscert /etc/ssl/certs/uniform-nats.crt --tlskey /etc/ssl/private/uniform-nats.key"
+  service-rabbitmq:
+    image: "rabbitmq:management"
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+      - type: bind
+        source: ./docker-compose-resources/service-rabbitmq/rabbitmq.conf
+        target: /etc/rabbitmq/rabbitmq.conf
+      - type: bind
+        source: ./docker-compose-resources/service-rabbitmq/enabled_plugins
+        target: /etc/rabbitmq/enabled_plugins
+      - type: bind
+        source: ./docker-compose-resources/service-rabbitmq/rabbitmq_delayed_message_exchange-3.11.1.ez
+        target: /opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.11.1.ez
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: ["CMD", "/opt/rabbitmq/sbin/rabbitmqctl", "ping"]
+  rabbitmq:
+    image: "ghcr.io/go-uniform/rabbitmq"
+    depends_on:
+      nats:
+        condition: service_started
+      service-rabbitmq:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+    healthcheck:
+      test: ["CMD", "/service", "command:ping"]
+    command: "run"
+  infobip:
+    image: "ghcr.io/go-uniform/infobip"
+    depends_on:
+      nats:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+    healthcheck:
+      test: ["CMD", "/service", "command:ping"]
+    command: "run --apiKey t --uri t --virtual"

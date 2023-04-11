@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// ParseRequest Gets the index of a string in an array of strings
 var ParseRequest = func(data []byte) (Request, error) {
 	var request Request
 
@@ -26,11 +27,7 @@ var ParseRequest = func(data []byte) (Request, error) {
 	return request, nil
 }
 
-/*
-	IndexOf
-
-Get the index of a string inside of a string array
-*/
+// IndexOf Gets the index of a string in an array of strings
 var IndexOf = func(haystack []string, needle string, caseSensitive bool) int {
 	if caseSensitive {
 		for i, item := range haystack {
@@ -49,12 +46,12 @@ var IndexOf = func(haystack []string, needle string, caseSensitive bool) int {
 	return -1
 }
 
-// see if a string array contains a given string
+// Contains checks if a string array contains a given string
 var Contains = func(haystack []string, needle string, caseSensitive bool) bool {
 	return IndexOf(haystack, needle, caseSensitive) != -1
 }
 
-// trim the filterItems from the items array
+// Filter trims the filterItems from the items array
 var Filter = func(items, filters []string, caseSensitive bool) []string {
 	if filters == nil || len(filters) <= 0 {
 		return items
@@ -93,7 +90,7 @@ func isEmpty(object interface{}) bool {
 	}
 }
 
-// determine if a value is empty or not
+// IsEmpty determines if a value is empty or not
 var IsEmpty = func(value interface{}) bool {
 	if value == nil || value == "" {
 		return true
@@ -111,7 +108,7 @@ var IsEmpty = func(value interface{}) bool {
 	return isEmpty(value)
 }
 
-// generate a sha512 hash for the given value/salt combo
+// Hash generates a sha512 hash for the given value/salt combo
 var Hash = func(value interface{}, salt string) string {
 	concatenatedData := []byte(fmt.Sprintf(`%s%v`, salt, value))
 
@@ -124,4 +121,17 @@ var Hash = func(value interface{}, salt string) string {
 
 	base64EncodedString := base64.StdEncoding.EncodeToString(hashedData)
 	return base64EncodedString
+}
+
+// MapKeysToSlice extract the keys of map as an array
+func MapKeysToSlice[K comparable, V any](m map[K]V) []K {
+	keys := make([]K, len(m))
+
+	i := 0
+	for k := range m {
+		keys[i] = k
+		i++
+	}
+
+	return keys
 }

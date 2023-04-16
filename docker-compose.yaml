@@ -13,6 +13,21 @@ services:
     healthcheck:
       test: ["CMD", "/client", "test"]
 
+  api:
+    image: "ghcr.io/go-uniform/api"
+    depends_on:
+      nats:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./docker-compose-resources/ssl
+        target: /etc/ssl
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: ["CMD", "/service", "command:ping"]
+    command: "run"
+
   service-mongo:
     image: mongo
     volumes:
@@ -67,7 +82,7 @@ services:
   mongo:
     image: "ghcr.io/go-uniform/mongo"
     depends_on:
-      nats:
+      api:
         condition: service_healthy
       service-mongo:
         condition: service_healthy
@@ -82,7 +97,7 @@ services:
   rabbitmq:
     image: "ghcr.io/go-uniform/rabbitmq"
     depends_on:
-      nats:
+      api:
         condition: service_healthy
       service-rabbitmq:
         condition: service_healthy
@@ -97,7 +112,7 @@ services:
   infobip:
     image: "ghcr.io/go-uniform/infobip"
     depends_on:
-      nats:
+      api:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
